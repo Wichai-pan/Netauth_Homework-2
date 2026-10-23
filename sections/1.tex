@@ -1,0 +1,338 @@
+% =====================================================================
+% Lab 1 - Initial Security Assessment report body.
+% NOTE ON FIGURES: each figure below shows a placeholder box so the file
+% compiles as-is. To insert a screenshot, drop the image into figures/
+% and replace the \fbox{...} line with the commented \includegraphics line
+% above it. Keep the version numbers and packet counts in the text
+% consistent with whatever screenshots you finally use.
+% =====================================================================
+
+
+% \begin{center}
+% \begin{tabular}{ll}
+% \textbf{Course:} & NETAUTH -- Network Security: Authentication and Authorization \\
+% \textbf{Date:} & 23 September 2026 \\
+% \textbf{Scope:} & Isolated laboratory network 192.168.1.0/24 (lab systems only) \\
+% \end{tabular}
+% \end{center}
+
+% \vspace{0.3cm}
+
+% ---------------------------------------------------------------------
+\section{Introduction and Objective}
+
+The goal of this laboratory was to carry out an initial security assessment of
+a deliberately insecure internal web service. The assessment was performed from
+a Kali Linux virtual machine against an Ubuntu Server virtual machine on the
+same isolated network. The work covered network connectivity, service
+discovery, exploration of the web application and its access control,
+administrator credential testing, and analysis of the login traffic.
+
+All activity was limited to the laboratory systems. The findings and
+conclusions below are based only on the evidence collected during the exercise.
+
+% ---------------------------------------------------------------------
+\section{Network Topology and Configuration}
+
+The laboratory consisted of two virtual machines on the same \texttt{/24}
+network, as shown in Table~\ref{tab:topology}.
+
+\begin{table}[H]
+\centering
+\caption{Laboratory network configuration.}
+\label{tab:topology}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{System} & \textbf{Role} & \textbf{IP address} & \textbf{Network} \\
+\midrule
+Kali Linux    & Assessment client   & 192.168.1.5  & 192.168.1.0/24 \\
+Ubuntu Server & Target web server   & 192.168.1.35 & 192.168.1.0/24 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On the Kali machine, interface \texttt{eth0} was assigned the address
+192.168.1.5/24 with a directly connected route to 192.168.1.0/24, which placed
+both machines on the same isolated segment.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/fig1_kali_ip.png}
+\caption{Kali Linux network configuration and route for 192.168.1.0/24.}
+\label{fig:kali-ip}
+\end{figure}
+
+% ---------------------------------------------------------------------
+\section{Network Connectivity}
+
+Connectivity from Kali to the Ubuntu Server was checked with ICMP echo
+requests. The target 192.168.1.35 answered every request with 0\% packet loss,
+which confirmed that the two machines could communicate before any further
+testing, as shown in Figure~\ref{fig:ping}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig2_ping.png}
+\caption{Successful ping test from Kali Linux to 192.168.1.35.}
+\label{fig:ping}
+\end{figure}
+
+% ---------------------------------------------------------------------
+\section{Service Discovery and Attack Surface}
+
+The \texttt{nmap} tool was used to identify the TCP services reachable on the Ubuntu Server. A
+version detection scan found two open ports, summarised in
+Table~\ref{tab:nmap}.
+
+\begin{table}[H]
+\centering
+\caption{Open TCP ports found on 192.168.1.35.}
+\label{tab:nmap}
+\begin{tabular}{@{}llp{8.2cm}@{}}
+\toprule
+\textbf{Port} & \textbf{Service} & \textbf{Observed version / interpretation} \\
+\midrule
+22/tcp   & SSH  & OpenSSH 10.2p1 Ubuntu 2ubuntu3.6; remote administration service. \\
+5000/tcp & HTTP & Werkzeug httpd 3.1.8 (Python 3.14.4); hosts the laboratory web application. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Both services are reachable over the network and therefore add to the attack
+surface, as shown in Figure~\ref{fig:nmap}. The scan alone does not prove that SSH is vulnerable; it only shows
+that SSH is an additional remotely accessible service that must be securely
+configured. Port 5000 exposes the web application examined in the next
+sections. 
+% It is also worth noting that the web application is served by
+% Werkzeug, the development server built into Flask, which is not intended to be
+% exposed as a production service and whose version is disclosed in the response.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig3_nmap.png}
+\caption{Nmap service-version scan against 192.168.1.35.}
+\label{fig:nmap}
+\end{figure}
+
+% ---------------------------------------------------------------------
+\section{Web Application Exploration}
+
+\subsection{Public resources}
+
+Before authentication, the root page at \url{http://192.168.1.35:5000/} reported
+that the user was not authenticated and offered links to \emph{Public
+information} and \emph{Login}. The landing page and the public information page
+were both reachable without logging in, which is the expected behaviour for
+public content.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig4_landing.png}
+\caption{Web application landing page before authentication.}
+\label{fig:landing}
+\end{figure}
+
+\subsection{Authenticated employee access}
+
+The legitimate account \texttt{alice / alice123} was used to log in. After
+authentication, Alice was identified with the \emph{employee} role and could
+open \texttt{/internal}, as shown in Figure~\ref{fig:internal}. That page disclosed the internal network 192.168.1.0/24
+and stated that the information should only be available to authenticated users.
+For an authenticated employee, this access is consistent with the stated policy.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig5_internal.png}
+\caption{Alice authenticated as an employee and accessing \texttt{/internal}.}
+\label{fig:internal}
+\end{figure}
+
+\subsection{Unauthorised access to the administration page}
+
+While still logged in as Alice, the \emph{Administration} link opened
+\texttt{/admin}, as shown in Figure~\ref{fig:admin-employee}. The page showed Alice's role as \emph{employee} and, at the
+same time, stated that it should only be accessible to administrators. This is
+direct evidence that the application does not enforce role-based authorisation
+on the administrative resource: being authenticated is enough to reach it,
+regardless of the user's role.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig6_admin_employee.png}
+\caption{Employee user Alice accessing the Administration panel.}
+\label{fig:admin-employee}
+\end{figure}
+
+\subsection{Administrator credential test}
+
+The administrator account was then accessed using the guessed credentials
+\texttt{admin / admin123}. The credentials followed the same predictable pattern
+as the other accounts and were accepted, giving a session identified as
+\emph{admin}. The success of a simple, predictable password shows that
+administrator authentication is weak.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig7_admin_login.png}
+\caption{Successful administrator session using the guessed credentials.}
+\label{fig:admin-login}
+\end{figure}
+
+% ---------------------------------------------------------------------
+\section{Traffic Analysis}
+
+Wireshark was started on the Kali \texttt{eth0} interface, and Alice logged in
+again, as shown in Figure~\ref{fig:http-flow}. Filtering the capture for the web traffic showed the login sequence: a
+\texttt{POST /login} request, an HTTP 302 redirect, and a following request for
+\texttt{/internal}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig8_http_flow.png}
+\caption{HTTP traffic showing \texttt{POST /login}, the redirect, and access to \texttt{/internal}.}
+\label{fig:http-flow}
+\end{figure}
+
+Inspecting the \texttt{POST /login} packet showed that the request used
+\texttt{application/x-www-form-urlencoded} over plain HTTP. The form fields were
+readable directly in Wireshark: \texttt{username = alice} and
+\texttt{password = alice123}, as shown in Figure~\ref{fig:creds}. The login credentials were therefore sent over the
+network without any transport encryption.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig9_wireshark_creds.png}
+\caption{Wireshark packet details exposing Alice's username and password in the HTTP request.}
+\label{fig:creds}
+\end{figure}
+
+% ---------------------------------------------------------------------
+\section{Security Assessment}
+
+Each finding below follows the required \emph{Observation $\rightarrow$ Security
+consequence $\rightarrow$ Countermeasure} structure and states the security
+properties affected. Only issues supported by the collected evidence are
+included.
+
+\subsection{Broken access control on \texttt{/admin}}
+\textbf{Observation.} Alice is authenticated with the \emph{employee} role but
+can open the \texttt{/admin} page, which itself states that it should be
+restricted to administrators.\\
+\textbf{Security consequence.} A non-administrator can reach administrative
+functionality and information. If the listed administrative functions were
+active, this could expose sensitive data or allow unauthorised configuration
+changes.\\
+\textbf{Affected properties.} Authorization; Confidentiality; potentially
+Integrity.\\
+\textbf{Countermeasure.} Enforce server side role checks on every
+administrative endpoint. Authentication alone must not grant access; the server
+must confirm that the user holds the \emph{admin} role before returning the page
+or performing any privileged action.
+
+\subsection{Weak and predictable administrator credentials}
+\textbf{Observation.} The administrator account was accessed using the guessed
+password \texttt{admin / admin123}, which follows the same obvious pattern as
+the other accounts.\\
+\textbf{Security consequence.} An attacker who guesses the password gains
+administrator privileges and access to privileged resources, which undermines
+the authentication mechanism.\\
+\textbf{Affected properties.} Authentication; Authorization; Confidentiality;
+potentially Integrity.\\
+\textbf{Countermeasure.} Require strong, unique administrator passwords; forbid
+predictable or default-style passwords; add rate limiting or account lockout on
+repeated failures; and use multi-factor authentication for privileged accounts
+where possible.
+
+\subsection{Credentials transmitted in clear text over HTTP}
+\textbf{Observation.} Wireshark captured the \texttt{POST /login} request and
+showed the fields \texttt{username = alice} and \texttt{password = alice123} in
+readable form. The application was accessed over HTTP, not HTTPS.\\
+\textbf{Security consequence.} Anyone able to observe the traffic can recover
+user credentials and reuse them to impersonate the user. Other HTTP content is
+also open to passive observation or modification in transit.\\
+\textbf{Affected properties.} Confidentiality; Authentication; potentially
+Integrity of data in transit.\\
+\textbf{Countermeasure.} Serve the application only over HTTPS with TLS,
+redirect HTTP to HTTPS, and apply secure session-cookie settings once TLS is in
+place.
+
+\subsection{Exposed network services increase the attack surface}
+\textbf{Observation.} Nmap found SSH on TCP/22 and the web service on TCP/5000
+reachable from the Kali host, and both responses disclosed their software
+versions.\\
+\textbf{Security consequence.} Each reachable service is an additional entry
+point. The scan alone does not prove an exploitable flaw, but unnecessary or
+weakly configured services increase the opportunities available to an attacker.\\
+\textbf{Affected properties.} No direct violation was shown by the scan itself;
+a compromise of either service could affect Confidentiality, Integrity, or
+Availability.\\
+\textbf{Countermeasure.} Expose only the services that are required, restrict
+access with host or network firewall rules, keep software updated, use strong
+authentication for SSH, and avoid exposing development web servers beyond the
+intended trusted network.
+
+\subsection{Summary of affected security properties}
+
+Table~\ref{tab:matrix} maps each finding to the security properties it affects.
+
+\begin{table}[H]
+\centering
+\caption{Findings and affected security properties.}
+\label{tab:matrix}
+\small
+\begin{tabularx}{\textwidth}{@{}Xccccc@{}}
+\toprule
+\textbf{Finding} & \textbf{Conf.} & \textbf{Integ.} & \textbf{Avail.} & \textbf{Authn.} & \textbf{Authz.} \\
+\midrule
+Broken access control          & Yes       & Potential & -- & --        & Yes \\
+Weak admin credentials         & Yes       & Potential & -- & Yes       & Yes \\
+Plaintext HTTP credentials     & Yes       & Potential & -- & Yes       & --  \\
+Reachable SSH + HTTP services  & Potential & Potential & Potential & Potential & Potential \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ---------------------------------------------------------------------
+\section{Conclusion}
+
+The initial assessment shows that the service is reachable and working but has
+several important weaknesses. The most significant confirmed issues are broken
+authorisation on the administration page, a predictable administrator password,
+and login credentials sent in clear text over HTTP. Together, these problems let
+a low-privilege user reach administrator-only content, make compromise of the
+administrator account easy, and expose user credentials to anyone capturing the
+network traffic.
+
+The first priorities for remediation should be to enforce server-side
+authorisation on administrative resources, replace the weak administrator
+password with strong authentication controls, and serve all traffic over
+HTTPS/TLS. The exposed SSH and web services should also be hardened and limited
+to the systems that need them. Availability was not affected during the
+laboratory activities.
+
+% ---------------------------------------------------------------------
+\appendix
+\section{Evidence Checklist}
+
+Table~\ref{tab:checklist} maps each required deliverable to its location in this
+report.
+
+\begin{table}[H]
+\centering
+\caption{Required deliverables and where they appear.}
+\label{tab:checklist}
+\begin{tabularx}{\textwidth}{@{}Xl@{}}
+\toprule
+\textbf{Required deliverable} & \textbf{Location} \\
+\midrule
+Network topology and configuration            & Section 2, Fig.~\ref{fig:kali-ip} \\
+Connectivity evidence                         & Section 3, Fig.~\ref{fig:ping} \\
+Reconnaissance results and interpretation     & Section 4, Fig.~\ref{fig:nmap} \\
+Resources discovered in the web application    & Section 5, Figs.~\ref{fig:landing}--\ref{fig:admin-login} \\
+Wireshark evidence of the authentication exchange & Section 6, Figs.~\ref{fig:http-flow}--\ref{fig:creds} \\
+Identified vulnerabilities and affected properties & Section 7 \\
+Proposed countermeasures                      & Section 7 \\
+Security-posture conclusion                    & Section 8 \\
+\bottomrule
+\end{tabularx}
+\end{table}

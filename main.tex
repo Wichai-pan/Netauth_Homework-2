@@ -1,0 +1,113 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[super,square]{natbib}
+\usepackage[a4paper,margin=2.3cm]{geometry}
+\usepackage{fancyhdr} % 页眉页脚设置
+\usepackage[dvipsnames]{xcolor} % 颜色支持
+\usepackage{hyperref} % 链接支持
+
+\usepackage{setspace}
+\setstretch{1.15}
+\setlength{\parskip}{0.4em}
+\setlength{\parindent}{0pt}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=CadetBlue,
+    filecolor=CadetBlue,
+    urlcolor=CadetBlue,
+}
+\usepackage{booktabs}
+\usepackage{multicol}
+\usepackage{listings}
+\usepackage{caption} 
+\usepackage{marvosym}
+\usepackage{float}
+\usepackage{authblk}
+
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{mathtools}  % 提供 \coloneqq, \eqqcolon, \vcentcolon 等
+\usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{subfig}
+
+\usepackage[most]{tcolorbox}
+\usepackage{float}  % 导言区
+
+% 设置页眉和页脚
+\pagestyle{fancy}
+\fancyhf{} % 清空默认页眉页脚
+\fancyhead[L]{\includegraphics[width=4cm, height=1cm]{image.png}} % 左侧页眉
+% \fancyhead[C]{\textit{Confidential Document}} % 中间页眉
+\fancyhead[R]{NETAUTH Network Security - Authentication and Authorization} % 右侧页眉：显示页码
+\fancyfoot[L]{\textit{EETAC-300264}} % 左侧页脚
+% \fancyfoot[C]{\textit{Period IV}} % 中间页脚
+\fancyfoot[R]{Page \thepage} % 右侧页脚：显示当前日期
+\renewcommand{\headrulewidth}{0.2pt} % 页眉分割线宽度
+\renewcommand{\footrulewidth}{0.2pt} % 页脚分割线宽度
+\usepackage{tabularx} % 导言区引入
+
+
+\usepackage{listings} % 代码高亮
+
+% 自定义Matlab代码风格
+\lstdefinelanguage{Matlab}{
+  keywords={break,case,catch,continue,elseif,else,end,for,function,
+  global,if,otherwise,persistent,return,switch,try,while},
+  keywordstyle=\color{blue}\bfseries,
+  comment=[l]\%, % MATLAB 单行注释
+  commentstyle=\color{green!50!black}\ttfamily,
+  stringstyle=\color{red!60!black}\ttfamily,
+  morekeywords={matlabFunction,end}, % 自定义额外关键字
+}
+
+\lstset{
+  language=Matlab,                % 设置为Matlab
+  basicstyle=\ttfamily\small,     % 等宽字体+小号字体
+  numbers=left,                   % 行号在左侧
+  numberstyle=\tiny\color{gray},  % 行号样式
+  stepnumber=1,                    % 行号递增步长
+  numbersep=6pt,                   % 行号与代码间距
+  backgroundcolor=\color{gray!5}, % 背景浅灰
+  frame=single,                    % 单线边框
+  rulecolor=\color{black},        % 边框颜色
+  breaklines=true,                 % 自动换行
+  breakatwhitespace=true,          % 在空格处换行
+  showstringspaces=false,          % 不标记空格
+  captionpos=b,                    % 标题位置bottom
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black}\itshape,
+  stringstyle=\color{orange},
+  tabsize=4,
+}
+
+
+\begin{document}
+
+\thispagestyle{fancy} % 启用页眉页脚样式
+
+% % 文档内容开始
+\begin{center}
+    \vspace*{0.2cm}
+    {\LARGE\bfseries Lab Report 3}\\[0.3cm]
+    {\large Huatai Pan, Rauf Muhammad}
+\end{center}
+
+% \title{Homework 1}
+% \author{Group 27}
+% \maketitle
+
+
+% \input{sections/1}
+
+
+
+% \bibliographystyle{IEEEtran}
+% \bibliography{references}
+
+\end{document}
