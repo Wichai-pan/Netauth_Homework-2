@@ -1,23 +1,24 @@
 \documentclass[a4paper,11pt]{article}
-\usepackage[a4paper,margin=2.15cm,headheight=33pt]{geometry}
+\usepackage[a4paper,margin=2.3cm,headheight=33pt]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{lmodern,graphicx,booktabs,tabularx,float,caption,fancyhdr,hyperref,xcolor,listings,enumitem,microtype}
+\usepackage{lmodern,graphicx,booktabs,tabularx,float,caption,fancyhdr,hyperref,xcolor,listings,enumitem,setspace}
 \definecolor{upcblue}{HTML}{0076B9}
 \hypersetup{colorlinks=true,linkcolor=upcblue,urlcolor=upcblue}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{0.45em}
+\setlength{\parskip}{0.4em}
+\setstretch{1.15}
 \setlist{itemsep=0.2em,topsep=0.25em}
 \captionsetup{font=small,labelfont=bf}
 \lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,frame=single,framesep=5pt,columns=fullflexible,showstringspaces=false}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\includegraphics[width=4.1cm]{image.png}}
-\fancyhead[R]{\small NETAUTH -- Lab 3}
-\fancyfoot[L]{\small Network Security: Authentication and Authorization}
-\fancyfoot[R]{\small\thepage}
-\renewcommand{\headrulewidth}{0.3pt}
-\renewcommand{\footrulewidth}{0pt}
+\fancyhead[L]{\includegraphics[width=4cm,height=1cm]{image.png}}
+\fancyhead[R]{\small NETAUTH Network Security - Authentication and Authorization}
+\fancyfoot[L]{\textit{EETAC-300264}}
+\fancyfoot[R]{Page \thepage}
+\renewcommand{\headrulewidth}{0.2pt}
+\renewcommand{\footrulewidth}{0.2pt}
 \newcommand{\evidence}[3]{\begin{figure}[H]\centering
   \includegraphics[width=#2\linewidth]{figures/#1}
   \caption{#3}\label{fig:#1}\end{figure}}
@@ -69,6 +70,13 @@ permissions to mode 600. The private-key passphrase was required again when crea
 the root certificate and issuing the server certificate; it is not included in this
 report. No private-key dump is reproduced here.
 
+\begin{figure}[H]\centering
+\includegraphics[width=0.80\linewidth]{figures/1.png}\\[0.35em]
+\includegraphics[width=0.80\linewidth]{figures/2.png}\\[0.35em]
+\includegraphics[width=0.72\linewidth]{figures/3.png}
+\caption{Preparing the Kali CA directory, generating the encrypted root key, and setting mode 600. No passphrase or private-key material is shown.}
+\end{figure}
+
 We created a self-signed root certificate valid for 5475 days (approximately 15 years),
 with critical \texttt{CA:TRUE} basic constraints and \texttt{keyCertSign,cRLSign} key usage.
 The observed subject and issuer were both \texttt{C=ES, O=SEC-LAB, CN=SEC-LAB Root CA};
@@ -90,6 +98,7 @@ and verified it again there. The server's \texttt{server.key} stayed on Ubuntu.
 \evidence{8.png}{0.93}{Transfer of the CSR from Ubuntu to the Kali CA over the laboratory network.}
 \evidence{9.png}{0.75}{CSR signature verification after its arrival on Kali.}
 
+\clearpage
 \section{Part III: Issue and verify the server certificate}
 On Kali, the CA extension file set critical \texttt{CA:FALSE}, digital-signature and
 key-encipherment usage, and \texttt{serverAuth} extended key usage. The handout's CSR
@@ -217,9 +226,9 @@ keys are included.
 
 \appendix
 \section{CSR and issuance configuration}
-These are the actual configuration files used in the experiment. The CSR requests
-\texttt{netauth.server}; the CA issuance file additionally includes
-\texttt{sec-lab.local} to satisfy the handout's final checklist.
+These are the configuration files used in the experiment. The CSR requests
+\texttt{netauth.server}; the CA extension file also includes
+\texttt{sec-lab.local} for the handout's final checklist.
 
 \subsection*{\texttt{server.cnf}}
 \lstinputlisting{artifacts/server.cnf}
