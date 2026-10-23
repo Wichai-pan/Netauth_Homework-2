@@ -1,113 +1,228 @@
 \documentclass[a4paper,11pt]{article}
-\usepackage[super,square]{natbib}
-\usepackage[a4paper,margin=2.3cm]{geometry}
-\usepackage{fancyhdr} % 页眉页脚设置
-\usepackage[dvipsnames]{xcolor} % 颜色支持
-\usepackage{hyperref} % 链接支持
-
-\usepackage{setspace}
-\setstretch{1.15}
-\setlength{\parskip}{0.4em}
+\usepackage[a4paper,margin=2.15cm,headheight=33pt]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,graphicx,booktabs,tabularx,float,caption,fancyhdr,hyperref,xcolor,listings,enumitem,microtype}
+\definecolor{upcblue}{HTML}{0076B9}
+\hypersetup{colorlinks=true,linkcolor=upcblue,urlcolor=upcblue}
 \setlength{\parindent}{0pt}
-
-\hypersetup{
-    colorlinks=true,
-    linkcolor=black,
-    citecolor=CadetBlue,
-    filecolor=CadetBlue,
-    urlcolor=CadetBlue,
-}
-\usepackage{booktabs}
-\usepackage{multicol}
-\usepackage{listings}
-\usepackage{caption} 
-\usepackage{marvosym}
-\usepackage{float}
-\usepackage{authblk}
-
-\usepackage{textcomp}
-\usepackage{xcolor}
-\usepackage{mathtools}  % 提供 \coloneqq, \eqqcolon, \vcentcolon 等
-\usepackage[caption=false,font=footnotesize]{subfig}
-\usepackage{booktabs}
-\usepackage{algorithm}
-\usepackage{url}
-\usepackage{graphicx}
-\usepackage{subcaption}
-\usepackage{subfig}
-
-\usepackage[most]{tcolorbox}
-\usepackage{float}  % 导言区
-
-% 设置页眉和页脚
+\setlength{\parskip}{0.45em}
+\setlist{itemsep=0.2em,topsep=0.25em}
+\captionsetup{font=small,labelfont=bf}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,frame=single,framesep=5pt,columns=fullflexible,showstringspaces=false}
 \pagestyle{fancy}
-\fancyhf{} % 清空默认页眉页脚
-\fancyhead[L]{\includegraphics[width=4cm, height=1cm]{image.png}} % 左侧页眉
-% \fancyhead[C]{\textit{Confidential Document}} % 中间页眉
-\fancyhead[R]{NETAUTH Network Security - Authentication and Authorization} % 右侧页眉：显示页码
-\fancyfoot[L]{\textit{EETAC-300264}} % 左侧页脚
-% \fancyfoot[C]{\textit{Period IV}} % 中间页脚
-\fancyfoot[R]{Page \thepage} % 右侧页脚：显示当前日期
-\renewcommand{\headrulewidth}{0.2pt} % 页眉分割线宽度
-\renewcommand{\footrulewidth}{0.2pt} % 页脚分割线宽度
-\usepackage{tabularx} % 导言区引入
-
-
-\usepackage{listings} % 代码高亮
-
-% 自定义Matlab代码风格
-\lstdefinelanguage{Matlab}{
-  keywords={break,case,catch,continue,elseif,else,end,for,function,
-  global,if,otherwise,persistent,return,switch,try,while},
-  keywordstyle=\color{blue}\bfseries,
-  comment=[l]\%, % MATLAB 单行注释
-  commentstyle=\color{green!50!black}\ttfamily,
-  stringstyle=\color{red!60!black}\ttfamily,
-  morekeywords={matlabFunction,end}, % 自定义额外关键字
-}
-
-\lstset{
-  language=Matlab,                % 设置为Matlab
-  basicstyle=\ttfamily\small,     % 等宽字体+小号字体
-  numbers=left,                   % 行号在左侧
-  numberstyle=\tiny\color{gray},  % 行号样式
-  stepnumber=1,                    % 行号递增步长
-  numbersep=6pt,                   % 行号与代码间距
-  backgroundcolor=\color{gray!5}, % 背景浅灰
-  frame=single,                    % 单线边框
-  rulecolor=\color{black},        % 边框颜色
-  breaklines=true,                 % 自动换行
-  breakatwhitespace=true,          % 在空格处换行
-  showstringspaces=false,          % 不标记空格
-  captionpos=b,                    % 标题位置bottom
-  keywordstyle=\color{blue}\bfseries,
-  commentstyle=\color{green!50!black}\itshape,
-  stringstyle=\color{orange},
-  tabsize=4,
-}
-
+\fancyhf{}
+\fancyhead[L]{\includegraphics[width=4.1cm]{image.png}}
+\fancyhead[R]{\small NETAUTH -- Lab 3}
+\fancyfoot[L]{\small Network Security: Authentication and Authorization}
+\fancyfoot[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0pt}
+\newcommand{\evidence}[3]{\begin{figure}[H]\centering
+  \includegraphics[width=#2\linewidth]{figures/#1}
+  \caption{#3}\label{fig:#1}\end{figure}}
 
 \begin{document}
-
-\thispagestyle{fancy} % 启用页眉页脚样式
-
-% % 文档内容开始
 \begin{center}
-    \vspace*{0.2cm}
-    {\LARGE\bfseries Lab Report 3}\\[0.3cm]
-    {\large Huatai Pan, Rauf Muhammad}
+  {\Large\bfseries Building a Root CA and Enabling HTTPS with OpenSSL}\\[0.35em]
+  {\large Lab 3 Report}\\[0.6em]
+  {Huatai Pan \quad and \quad Rauf Muhammad}\\[0.25em]
+  {NETAUTH -- Network Security: Authentication and Authorization}\\[0.2em]
+  {23 October 2026}
 \end{center}
 
-% \title{Homework 1}
-% \author{Group 27}
-% \maketitle
+\begin{abstract}
+We created an encrypted 4096-bit RSA root certification authority (CA) on Kali Linux,
+generated a separate 2048-bit RSA key and certificate signing request (CSR) on an Ubuntu
+Flask server, and issued a three-year TLS server certificate. We then configured the
+existing web application to serve HTTPS on port 8443. OpenSSL verified the certificate
+chain, a client request using the root certificate returned HTTP 200, and Firefox
+accepted the connection after the laboratory root CA was imported. The server private
+key remained on Ubuntu; the root CA private key remained on Kali.
+\end{abstract}
 
+\section{Objective and laboratory environment}
+The objective was to protect communication with the existing SEC-LAB Flask application
+using TLS and a certificate issued by a laboratory CA. The application was initially
+served over unencrypted HTTP on port 5000. We retained that configuration until the
+certificate had been created and verified, then changed the Flask startup configuration
+to serve HTTPS on port 8443. Table~\ref{tab:topology} records the laboratory roles.
 
-% \input{sections/1}
+\begin{table}[H]\centering
+\caption{Laboratory systems and certificate roles.}\label{tab:topology}
+\begin{tabularx}{\linewidth}{@{}lXll@{}}\toprule
+System & Role & Lab address & Relevant location \\ \midrule
+Kali Linux & Root CA and browser client & 192.168.1.5 & \texttt{/home/netauth/lab-pki} \\
+Ubuntu Server & Existing Flask web server & 192.168.1.35 & \texttt{/home/netauth/insecure-server} \\
+\bottomrule\end{tabularx}
+\end{table}
 
+The CA key and certificate were stored under \texttt{ca/} on Kali. The server key and
+CSR were created under \texttt{server/} on Ubuntu. Only the CSR was sent to Kali for
+signing; only the issued certificate was sent back to Ubuntu. Neither private key was
+transferred between machines.
 
+\section{Part I: Create and inspect the root CA}
+On Kali, we created a dedicated working directory and generated an AES-256-encrypted
+4096-bit RSA private key with \texttt{openssl genrsa -aes256}. We restricted its file
+permissions to mode 600. The private-key passphrase was required again when creating
+the root certificate and issuing the server certificate; it is not included in this
+report. No private-key dump is reproduced here.
 
-% \bibliographystyle{IEEEtran}
-% \bibliography{references}
+We created a self-signed root certificate valid for 5475 days (approximately 15 years),
+with critical \texttt{CA:TRUE} basic constraints and \texttt{keyCertSign,cRLSign} key usage.
+The observed subject and issuer were both \texttt{C=ES, O=SEC-LAB, CN=SEC-LAB Root CA};
+the validity interval was 23 October 2026 to 19 October 2041.
 
+\evidence{5.png}{0.88}{Root CA creation and matching subject and issuer with a 15-year validity period.}
+\evidence{6.png}{0.95}{Root CA public key and extensions: 4096-bit RSA, \texttt{CA:TRUE}, Certificate Sign and CRL Sign.}
+
+\section{Part II: Generate the server key and CSR}
+On Ubuntu, we generated a separate 2048-bit RSA private key and set its permissions to
+mode 600. The CSR configuration specified \texttt{C=ES}, \texttt{O=NETAUTH}, and
+\texttt{CN=netauth.server}. Its requested subject alternative names (SANs) were
+\texttt{DNS:netauth.server} and \texttt{IP:192.168.1.35}. OpenSSL reported
+\texttt{Certificate request self-signature verify OK}, confirming that the CSR was
+signed by the server's private key. We transferred \texttt{server.csr} to Kali via SCP
+and verified it again there. The server's \texttt{server.key} stayed on Ubuntu.
+
+\evidence{7.png}{0.96}{Ubuntu server key, CSR configuration, CSR verification, and requested SANs.}
+\evidence{8.png}{0.93}{Transfer of the CSR from Ubuntu to the Kali CA over the laboratory network.}
+\evidence{9.png}{0.75}{CSR signature verification after its arrival on Kali.}
+
+\section{Part III: Issue and verify the server certificate}
+On Kali, the CA extension file set critical \texttt{CA:FALSE}, digital-signature and
+key-encipherment usage, and \texttt{serverAuth} extended key usage. The handout's CSR
+example names \texttt{netauth.server}, whereas its final checklist also asks for
+\texttt{sec-lab.local}. We retained the originally requested name and added
+\texttt{DNS:sec-lab.local} to the CA's issuance extensions. Therefore, the final
+certificate contains both DNS names and \texttt{IP:192.168.1.35}. This addition was
+made during CA issuance; the original CSR was not altered.
+
+Using the root CA key, we issued a server certificate valid for 1095 days
+(approximately three years), shorter than the root certificate's validity. The final
+certificate has subject \texttt{C=ES, O=NETAUTH, CN=netauth.server}, issuer
+\texttt{SEC-LAB Root CA}, \texttt{CA:FALSE}, and TLS Web Server Authentication usage.
+The verification command and its observed result were:
+
+\begin{lstlisting}
+openssl verify -CAfile ca/rootCA.crt server/server.crt
+server/server.crt: OK
+\end{lstlisting}
+
+\evidence{11.png}{0.78}{Final issuance configuration and successful chain verification. The added SAN is visible in the issued certificate.}
+\evidence{12.png}{0.95}{Fields of the final server certificate: issuer, subject, dates, constraints, server authentication, and SANs.}
+
+\clearpage
+\section{Part IV: Deploy HTTPS and establish browser trust}
+We copied the issued \texttt{server.crt} back to Ubuntu. The public key extracted from
+that certificate and the public key derived from \texttt{server.key} produced identical
+SHA-256 hashes, confirming that the certificate matched the private key on the server.
+After backing up \texttt{app.py}, we changed its Flask startup block to load
+\texttt{server/server.crt} and \texttt{server/server.key} on port 8443 with debug mode
+disabled. The \texttt{sec-lab} service restarted and remained active.
+
+\begin{lstlisting}
+app.run(host="0.0.0.0", port=8443,
+        ssl_context=("server/server.crt", "server/server.key"),
+        debug=False)
+\end{lstlisting}
+
+From Kali, the following request used the laboratory root certificate to validate
+the server's chain and address. It returned \texttt{HTTP/1.1 200 OK}:
+
+\begin{lstlisting}
+curl --cacert ca/rootCA.crt -I https://192.168.1.35:8443/
+\end{lstlisting}
+
+\evidence{14.png}{0.95}{Matching SHA-256 hashes of the server certificate and private key public components.}
+\evidence{15.png}{0.75}{The Flask service remained active after the HTTPS configuration was deployed.}
+\evidence{16.png}{0.78}{HTTPS request succeeds with explicit CA validation and returns HTTP 200.}
+
+Firefox initially warned about the untrusted local CA. We imported only
+\texttt{rootCA.crt} into Firefox's Authorities store and enabled trust for identifying
+websites. We did not add a site-specific security exception. After reloading,
+Firefox displayed the Flask application at \url{https://192.168.1.35:8443/}.
+Its certificate viewer showed \texttt{netauth.server} issued by
+\texttt{SEC-LAB Root CA}; the SAN included the IP address used in the URL.
+
+\evidence{17.png}{0.88}{Firefox warning before the laboratory root CA was trusted.}
+\evidence{19.png}{0.88}{Importing the root CA with trust for website identification only.}
+\evidence{20.png}{0.82}{The existing Flask application loads over HTTPS after the root CA is trusted.}
+\evidence{22.png}{0.75}{Firefox certificate viewer showing the server certificate, root CA, validity, and SANs.}
+
+\clearpage
+\section{Questions and answers}
+\begin{enumerate}[leftmargin=*,label=\textbf{\arabic*.}]
+\item \textbf{Why protect the root CA private key more carefully than its certificate?}
+The private key can sign arbitrary certificates that clients may accept as issued by
+this CA. The root certificate contains the public key and is intentionally distributed
+to clients. Disclosure of the certificate does not grant signing capability.
+
+\item \textbf{Why is the root CA certificate self-signed?}
+It is the trust anchor and has no superior CA in this laboratory hierarchy. Its own
+signature confirms internal consistency; actual trust comes from explicitly installing
+the root certificate on the client.
+
+\item \textbf{What is in a CSR, and why does the CA not need the server private key?}
+The CSR carries the subject, public key, requested attributes such as SANs, and a
+signature made with the corresponding server private key. The CA verifies the request
+using the public key and signs the resulting certificate with the CA key. The server
+private key never needs to leave Ubuntu.
+
+\item \textbf{What does the CA signature guarantee?}
+It binds the signed certificate fields, including the subject and public key, to the
+issuing CA and allows a client to detect modifications. A client must also trust the
+CA, check validity and name matching, and rely on the CA's identity checks; the
+signature alone does not prove that the server software is secure.
+
+\item \textbf{Why must the server certificate have \texttt{CA:FALSE}?}
+It identifies the certificate as an end-entity certificate and prevents it from being
+accepted as a subordinate CA for signing other certificates.
+
+\item \textbf{What is the purpose of \texttt{serverAuth}?}
+This extended key usage authorizes the certificate for TLS server authentication,
+which is the purpose required for the HTTPS endpoint.
+
+\item \textbf{Why is SAN important for HTTPS validation?}
+Clients match the host name or IP used in the URL against SAN entries in the server
+certificate. The common name alone is not sufficient for modern HTTPS name checking.
+
+\item \textbf{What if the client uses an IP absent from SAN?}
+The client reports a certificate name mismatch and rejects or warns about the
+connection, even when the issuing root CA is trusted.
+
+\item \textbf{Why does installing \texttt{rootCA.crt} change Firefox's decision?}
+It makes the root CA a local trust anchor. Firefox can then validate the server
+certificate's signature and chain against that root; it still checks the date,
+intended use, and requested address.
+
+\item \textbf{Would HTTPS protect the password database after server compromise?}
+No. TLS protects data in transit between browser and server. A compromise of the
+server can expose files, application data, and private keys on the server; separate
+at-rest protection, access control, and hardening are required.
+\end{enumerate}
+
+\section{Conclusion and submitted artifacts}
+The original application was successfully served over HTTPS on port 8443 with a
+certificate issued by the laboratory root CA. Both OpenSSL and Firefox validated the
+final chain, and the browser warning disappeared only after the root certificate was
+trusted. The result protects the client--server channel; it does not repair the
+application's intentionally insecure authentication or protect server-side data after
+a host compromise.
+
+The accompanying \texttt{artifacts/} directory contains the root certificate,
+server CSR, server certificate, and both OpenSSL configuration files. No private
+keys are included.
+
+\appendix
+\section{CSR and issuance configuration}
+These are the actual configuration files used in the experiment. The CSR requests
+\texttt{netauth.server}; the CA issuance file additionally includes
+\texttt{sec-lab.local} to satisfy the handout's final checklist.
+
+\subsection*{\texttt{server.cnf}}
+\lstinputlisting{artifacts/server.cnf}
+\subsection*{\texttt{server.ext}}
+\lstinputlisting{artifacts/server.ext}
 \end{document}

@@ -1,0 +1,11 @@
+basicConstraints = critical,CA:FALSE
+keyUsage = critical,digitalSignature,keyEncipherment
+extendedKeyUsage = serverAuth
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = netauth.server
+DNS.2 = sec-lab.local
+IP.1 = 192.168.1.35
